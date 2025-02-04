@@ -1,12 +1,14 @@
 # DevOps_CPE
 
 ### 1. Network + Volume
+
 ```bash
 docker network create app-network
 docker volume create pgdata
 ```
 
 ### 2. Connecteur avec information de connexion
+
 ```bash
 docker run -d --name postgres-container \
     --network app-network \
@@ -17,14 +19,17 @@ docker run -d --name postgres-container \
 ```
 
 ### 3. Test de connexion à la bdd
+
 ```bash
 docker exec -it postgres-container psql -U usr -d db
 ```
 
 ## Question TP
+
 1-1 :
 On utilise le flag -e pour définir les variables d’environnement lors de l’exécution du conteneur
 Cela a plusieurs avantages :
+
 - Sécurité : Éviter de stocker des informations sensibles (ex. mots de passe) dans Dockerfile qui pourraient être exposés dans un repo.
 - Flexibilité : Permet de modifier les valeurs sans reconstruire l’image
 
@@ -37,7 +42,7 @@ On commente le code
 1-4 :
 On utilise multistage build car à l'aide de ce procédé l'image n'est générée qu'à partir du dernier from, séparant l'environnement de build et l'environnement de run. Cela permet de créer des images plus légères (ici sans supporter le jdk)
 
-1-5 : 
+1-5 :
 Un reverse proxy est essentiel pour les raisons suivantes :
 Abstraction des services backend : Cache l'URL réelle et le port du backend, ce qui rend la communication plus sécurisée et flexible
 
@@ -60,3 +65,5 @@ Facilite la montée en charge avec une simple commande (docker-compose up --scal
 Interopérabilité :
 
 Intégration facile avec des outils CI/CD pour automatiser les pipelines de déploiement.
+
+TP2
