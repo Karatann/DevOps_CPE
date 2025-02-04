@@ -1,28 +1,28 @@
-name: Merge Develop to Main
+name: Build and Push Docker Image
 
 on:
-  pull_request:
+  workflow_run:
+    workflows: ["Test Backend"]
+    branches:
+      - main
+    types:
+      - completed
+  push:
     branches:
       - main
 
 jobs:
-  test-and-build:
+  build-and-push-docker-image:
     runs-on: ubuntu-22.04
+    if: github.event.workflow_run.conclusion == 'success'
     permissions:
       contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: "corretto"
-
-      - name: Build and test with Maven
-        run: mvn clean verify
-        working-directory: backend/simple-api-student
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
@@ -44,37 +44,38 @@ jobs:
         run: |
           sed -i "s|<version>${{ env.VERSION }}</version>|<version>${{ env.NEW_VERSION }}</version>|g" backend/simple-api-student/pom.xml
 
-  build-and-push-docker-image:
-    needs: test-and-build
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Commit and push new version
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add backend/simple-api-student/pom.xml
+          git commit -m "Bump version to ${{ env.NEW_VERSION }}"
+          git tag ${{ env.NEW_VERSION }}
+          git push origin main --tags
 
       - name: Build and push backend image
         uses: docker/build-push-action@v3
         with:
           context: ./backend/simple-api-student
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-backend:${{ env.VERSION }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/backend:${{ env.NEW_VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
           push: true
 
       - name: Build and push database image
         uses: docker/build-push-action@v3
         with:
           context: ./db
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-database:${{ env.VERSION }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/db:${{ env.NEW_VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/db:latest
           push: true
 
-      - name: Build and push frontend image
+      - name: Build and push httpd image
         uses: docker/build-push-action@v3
         with:
           context: ./http
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-backend:${{ env.VERSION }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/http:${{ env.NEW_VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/http:latest
           push: true
