@@ -83,7 +83,7 @@ Avantages de pousser les images Docker sur Docker Hub :
 - Automatisation des déploiements : Les plateformes de déploiement (comme Kubernetes, AWS ECS) peuvent récupérer automatiquement les images Docker à partir de Docker Hub.
 - Versionnement : Les images Docker peuvent être taguées (latest, v1.0, etc.) pour une gestion simplifiée des versions.
 
-  ##comment version test backend :
+  ## comment version test backend :
 ```bash
 name: Test Backend
 # The name of the workflow. This will appear in the GitHub Actions interface.
@@ -159,7 +159,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Karatann_DevOps_CPE -f backend/simple-api-student/pom.xml
 ```
-##comment version push image
+## comment version push image
 
 ```bash
 name: Build and Push Docker Images
