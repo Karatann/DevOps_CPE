@@ -62,19 +62,19 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./backend/simple-api-student
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-backend:${{ env.VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-backend:${{ env.VERSION }}
           push: true
 
       - name: Build and push database image
         uses: docker/build-push-action@v3
         with:
           context: ./db
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:${{ env.VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-database:${{ env.VERSION }}
           push: true
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v3
         with:
           context: ./http
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-frontend:${{ env.VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-backend:${{ env.VERSION }}
           push: true
