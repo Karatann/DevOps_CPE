@@ -1,81 +1,50 @@
-name: Build and Push Docker Image
+name: CI/CD DevOps 2025 - Build and Push Docker Images
 
 on:
   workflow_run:
-    workflows: ["Test Backend"]
-    branches:
-      - main
+    workflows: ["CI/CD DevOps 2025 - Test Backend"]
     types:
       - completed
-  push:
     branches:
       - main
+      - develop
 
 jobs:
-  build-and-push-docker-image:
+  build-and-push-docker-images:
     runs-on: ubuntu-22.04
-    if: github.event.workflow_run.conclusion == 'success'
-    permissions:
-      contents: write
+    if: github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'develop'
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Login to DockerHub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Extract version from pom.xml
+        id: get_version
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f backend/pom.xml)" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-
-      - name: Get current version from pom.xml
-        id: version
-        run: |
-          VERSION=$(xmllint --xpath "/*[local-name()='project']/*[local-name()='version']/text()" backend/simple-api-student/pom.xml)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Increment version
-        id: increment_version
-        run: |
-          VERSION=${{ env.VERSION }}
-          NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-      - name: Update pom.xml with new version
-        run: |
-          sed -i "s|<version>${{ env.VERSION }}</version>|<version>${{ env.NEW_VERSION }}</version>|g" backend/simple-api-student/pom.xml
-
-      - name: Commit and push new version
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add backend/simple-api-student/pom.xml
-          git commit -m "Bump version to ${{ env.NEW_VERSION }}"
-          git tag ${{ env.NEW_VERSION }}
-          git push origin main --tags
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push backend image
         uses: docker/build-push-action@v3
         with:
-          context: ./backend/simple-api-student
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/backend:${{ env.NEW_VERSION }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
+          context: ./backend
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-backend:${{ env.VERSION }}
           push: true
 
       - name: Build and push database image
         uses: docker/build-push-action@v3
         with:
           context: ./db
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/db:${{ env.NEW_VERSION }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/db:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-db:${{ env.VERSION }}
           push: true
 
       - name: Build and push httpd image
         uses: docker/build-push-action@v3
         with:
           context: ./http
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/http:${{ env.NEW_VERSION }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/http:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-http:${{ env.VERSION }}
           push: true
