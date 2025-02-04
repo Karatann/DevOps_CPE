@@ -8,7 +8,8 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-22.04
-
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,15 +24,25 @@ jobs:
         run: mvn clean verify
         working-directory: backend/simple-api-student
 
-      - name: Install xmllint
+      - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-        # Étape : Installer xmllint pour manipuler le XML.
 
-      - name: Extract version from pom.xml
-        id: extract-version
+      - name: Get current version from pom.xml
+        id: version
         run: |
-          VERSION=$(xmllint --xpath "/[local-name()='project']/[local-name()='version']/text()" backend/simple-api-student/pom.xml)
+          VERSION=$(xmllint --xpath "/*[local-name()='project']/*[local-name()='version']/text()" backend/simple-api-student/pom.xml)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Increment version
+        id: increment_version
+        run: |
+          VERSION=${{ env.VERSION }}
+          NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Update pom.xml with new version
+        run: |
+          sed -i "s|<version>${{ env.VERSION }}</version>|<version>${{ env.NEW_VERSION }}</version>|g" backend/simple-api-student/pom.xml
 
   build-and-push-docker-image:
     needs: test-and-build
