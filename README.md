@@ -67,3 +67,11 @@ Interopérabilité :
 Intégration facile avec des outils CI/CD pour automatiser les pipelines de déploiement.
 
 TP2
+
+2-1 :
+Testcontainers est une bibliothèque Java qui facilite l'utilisation de conteneurs Docker pour les tests, les avantages sont :
+Tests d'intégration réalistes : Permet de tester des interactions avec des bases de données, des files d'attente, ou d'autres services externes dans un environnement Docker.
+Évite les dépendances locales : Pas besoin d'installer PostgreSQL ou d'autres services localement.
+Facilité d'utilisation : Configure et démarre automatiquement les conteneurs nécessaires pendant les tests.
+
+2-2
