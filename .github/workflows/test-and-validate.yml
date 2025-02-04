@@ -26,6 +26,7 @@ jobs:
       - name: Build and test with Maven
         run: mvn clean verify
         working-directory: backend/simple-api-student
+
         # Étape 3 : Construire et exécuter les tests avec Maven.
 
   sonar-analysis:
