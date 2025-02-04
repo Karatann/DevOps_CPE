@@ -26,7 +26,7 @@ jobs:
       - name: Extract version from pom.xml
         id: extract-version
         run: |
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f backend/pom.xml)
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f backend/simple-api-student/pom.xml)
           echo "Extracted VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
