@@ -25,20 +25,25 @@ jobs:
 
       - name: Extract version from pom.xml
         id: extract-version
-        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f backend/pom.xml)" >> $GITHUB_ENV
-        working-directory: backend/simple-api-student
-        # Étape 4 : Extraire la version du `pom.xml` et la stocker dans la variable d'environnement `VERSION`.
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f backend/pom.xml)
+          echo "Extracted VERSION=$VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Validate extracted version
+        run: |
+          if [[ -z "${{ env.VERSION }}" ]]; then
+            echo "Error: Extracted VERSION is empty or invalid."
+            exit 1
+          fi
 
   build-and-push-docker-image:
     needs: test-and-build
-    # Ce job est exécuté uniquement si le job précédent (`test-and-build`) réussit.
-
     runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        # Étape 1 : Récupérer le code du dépôt.
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -51,24 +56,18 @@ jobs:
         with:
           context: ./backend/simple-api-student
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-backend:${{ env.VERSION }}
-          # Tag : Utilise la version extraite du `pom.xml`.
           push: true
-          # Push : Pousse l'image sur Docker Hub.
 
       - name: Build and push database image
         uses: docker/build-push-action@v3
         with:
           context: ./db
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:${{ env.VERSION }}
-          # Tag : Utilise la version extraite du `pom.xml`.
           push: true
-          # Push : Pousse l'image sur Docker Hub.
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v3
         with:
           context: ./http
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-frontend:${{ env.VERSION }}
-          # Tag : Utilise la version extraite du `pom.xml`.
           push: true
-          # Push : Pousse l'image sur Docker Hub.
