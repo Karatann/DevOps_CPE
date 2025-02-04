@@ -74,4 +74,11 @@ Tests d'intégration réalistes : Permet de tester des interactions avec des bas
 Évite les dépendances locales : Pas besoin d'installer PostgreSQL ou d'autres services localement.
 Facilité d'utilisation : Configure et démarre automatiquement les conteneurs nécessaires pendant les tests.
 
-2-2
+2-3 For what purpose do we need to push docker images?
+
+Avantages de pousser les images Docker sur Docker Hub :
+
+- Accessibilité globale : Les images sont disponibles pour toute l'équipe et les environnements (production, staging, etc.).
+- Standardisation : Partage d'environnements cohérents grâce à des conteneurs Docker reproductibles.
+- Automatisation des déploiements : Les plateformes de déploiement (comme Kubernetes, AWS ECS) peuvent récupérer automatiquement les images Docker à partir de Docker Hub.
+- Versionnement : Les images Docker peuvent être taguées (latest, v1.0, etc.) pour une gestion simplifiée des versions.
