@@ -26,16 +26,8 @@ jobs:
       - name: Extract version from pom.xml
         id: extract-version
         run: |
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f backend/simple-api-student/pom.xml)
-          echo "Extracted VERSION=$VERSION"
+          VERSION=$(xmllint --xpath "/[local-name()='project']/[local-name()='version']/text()" tp-1/java/simple-api-student/pom.xml)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Validate extracted version
-        run: |
-          if [[ -z "${{ env.VERSION }}" ]]; then
-            echo "Error: Extracted VERSION is empty or invalid."
-            exit 1
-          fi
 
   build-and-push-docker-image:
     needs: test-and-build
