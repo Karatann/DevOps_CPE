@@ -82,3 +82,88 @@ Avantages de pousser les images Docker sur Docker Hub :
 - Standardisation : Partage d'environnements cohérents grâce à des conteneurs Docker reproductibles.
 - Automatisation des déploiements : Les plateformes de déploiement (comme Kubernetes, AWS ECS) peuvent récupérer automatiquement les images Docker à partir de Docker Hub.
 - Versionnement : Les images Docker peuvent être taguées (latest, v1.0, etc.) pour une gestion simplifiée des versions.
+
+  comment version test backend :
+```bash
+name: Test Backend
+# The name of the workflow. This will appear in the GitHub Actions interface.
+
+on:
+  push:
+    branches:
+      - main
+      # This workflow is triggered whenever code is pushed to the 'main' branch.
+  pull_request:
+    # This workflow is also triggered on pull requests to the repository.
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-22.04
+    # The job will run on an Ubuntu 22.04 environment.
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # Step 1: Checkout the code from the repository to the runner's workspace.
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "corretto"
+        # Step 2: Set up Java Development Kit (JDK) version 21 using the Corretto distribution.
+
+      - name: Build and test with Maven
+        run: mvn clean verify
+        working-directory: backend/simple-api-student
+        # Step 3: Use Maven to clean, build, and test the backend project located in 'backend/simple-api-student'.
+
+  build:
+    name: Build and analyze
+    # This is another job in the workflow, named 'Build and analyze'.
+
+    runs-on: ubuntu-latest
+    # This job runs on the latest Ubuntu environment.
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for better relevancy of analysis.
+        # Step 1: Checkout the repository with all history to ensure accurate analysis.
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: "corretto" # Alternative Java distributions are available (e.g., temurin, zulu, etc.).
+        # Step 2: Set up JDK 21 for this job using the Corretto distribution.
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+        # Step 3: Cache the SonarQube packages to speed up subsequent SonarCloud analysis runs.
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+        # Step 4: Cache Maven dependencies to avoid downloading them every time, which reduces build time.
+
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Karatann_DevOps_CPE -f backend/simple-api-student/pom.xml
+        # Step 5: Run the Maven build and perform SonarCloud analysis using the SonarCloud Maven plugin.
+        # -B: Enables batch mode for Maven (recommended in CI to avoid interactive prompts).
+        # -Dsonar.projectKey: The key identifying your project in SonarCloud.
+        # -Dsonar.organization: The organization key in SonarCloud.
+        # SONAR_TOKEN: An authentication token stored as a GitHub secret.
+```
+comment version 
+
+
