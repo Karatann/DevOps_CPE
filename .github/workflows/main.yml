@@ -49,13 +49,13 @@ jobs:
       - name: Build and push database image
         uses: docker/build-push-action@v3
         with:
-          context: ./database
+          context: ./db
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v3
         with:
-          context: ./webserver
+          context: ./http
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-frontend:latest
           push: ${{ github.ref == 'refs/heads/main' }}
