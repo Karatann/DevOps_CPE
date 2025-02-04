@@ -83,7 +83,7 @@ Avantages de pousser les images Docker sur Docker Hub :
 - Automatisation des déploiements : Les plateformes de déploiement (comme Kubernetes, AWS ECS) peuvent récupérer automatiquement les images Docker à partir de Docker Hub.
 - Versionnement : Les images Docker peuvent être taguées (latest, v1.0, etc.) pour une gestion simplifiée des versions.
 
-  comment version test backend :
+  ##comment version test backend :
 ```bash
 name: Test Backend
 # The name of the workflow. This will appear in the GitHub Actions interface.
@@ -158,12 +158,73 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Karatann_DevOps_CPE -f backend/simple-api-student/pom.xml
-        # Step 5: Run the Maven build and perform SonarCloud analysis using the SonarCloud Maven plugin.
-        # -B: Enables batch mode for Maven (recommended in CI to avoid interactive prompts).
-        # -Dsonar.projectKey: The key identifying your project in SonarCloud.
-        # -Dsonar.organization: The organization key in SonarCloud.
-        # SONAR_TOKEN: An authentication token stored as a GitHub secret.
 ```
-comment version 
+##comment version push image
+
+```bash
+name: Build and Push Docker Images
+# The name of the workflow. This will appear in the GitHub Actions interface.
+
+on:
+  workflow_run:
+    workflows:
+      - Test Backend
+      # This workflow is triggered after the 'Test Backend' workflow is completed.
+    types:
+      - completed
+      # It will only trigger when the 'Test Backend' workflow has fully completed.
+
+jobs:
+  build-and-push-docker-image:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main' }}
+    # This job runs only if:
+    # 1. The 'Test Backend' workflow concluded successfully.
+    # 2. The current branch is 'main'.
+
+    runs-on: ubuntu-22.04
+    # The job runs on an Ubuntu 22.04 environment.
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # Step 1: Clone the repository to the runner's workspace.
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        # Step 2: Log in to DockerHub using the credentials stored as GitHub Secrets.
+
+      - name: Build image and push backend
+        uses: docker/build-push-action@v3
+        with:
+          context: ./backend/simple-api-student
+          # Context: The directory containing the Dockerfile for the backend.
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-backend:latest
+          # Tag: The name of the Docker image, with 'latest' as the version.
+          push: true
+          # Push: Automatically push the built image to DockerHub.
+
+      - name: Build and push database image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./db
+          # Context: The directory containing the Dockerfile for the database.
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:latest
+          # Tag: The name of the Docker image for the database.
+          push: true
+          # Push: Automatically push the database image to DockerHub.
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./http
+          # Context: The directory containing the Dockerfile for the frontend.
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-frontend:latest
+          # Tag: The name of the Docker image for the frontend.
+          push: true
+          # Push: Automatically push the frontend image to DockerHub.
+```
 
 
