@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+    ServerName {{ inventory_hostname }}
+
+    # Proxy configuration for the backend API
+    ProxyPreserveHost On
+    ProxyPass /api/ http://backtp1:8080/
+    ProxyPassReverse /api/ http://backtp1:8080/
+
+    # Serve front-end files
+    DocumentRoot /usr/local/apache2/htdocs/frontend
+    <Directory /usr/local/apache2/htdocs/frontend>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+# Load necessary proxy modules
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so

@@ -1,0 +1,13 @@
+---
+# Lance la base de données
+
+- name: Launch the database container
+  docker_container:
+    name: tp1db
+    image: karatann/tp-devops-database:latest
+    pull: yes
+    env_file: /home/admin/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - name: app-network

@@ -1,0 +1,8 @@
+---
+- name: Copy file with owner and permissions
+  ansible.builtin.copy:
+    src: .env
+    dest: /home/admin/.env
+    owner: admin
+    group: admin
+    mode: "0644"

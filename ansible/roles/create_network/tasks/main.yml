@@ -1,0 +1,10 @@
+---
+# Crée un réseau Docker
+
+- name: Create Docker network
+  docker_network:
+    name: app-network
+
+- name: Create front network
+  docker_network:
+    name: front-network

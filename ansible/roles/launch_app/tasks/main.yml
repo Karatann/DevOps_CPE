@@ -1,0 +1,12 @@
+---
+# Lance l'application backend
+
+- name: Launch the backend container
+  docker_container:
+    name: backtp1
+    image: sylvainchu/tp-devops-backend:latest
+    pull: yes
+    env_file: /home/admin/.env
+    networks:
+      - name: app-network
+      - name: front-network

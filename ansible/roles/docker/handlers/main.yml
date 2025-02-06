@@ -1,0 +1,7 @@
+---
+# handlers/main.yml
+
+- name: Restart Docker
+  service:
+    name: docker
+    state: restarted

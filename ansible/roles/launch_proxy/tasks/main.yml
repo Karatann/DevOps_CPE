@@ -1,0 +1,13 @@
+---
+# Lance le proxy HTTP (frontend)
+
+- name: Launch the HTTPD container
+  docker_container:
+    name: httptp1
+    image: karatann/httpd:latest
+    pull: yes
+    ports:
+      - "80:80"
+      - "8080:8080"
+    networks:
+      - name: front-network

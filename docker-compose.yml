@@ -30,5 +30,13 @@ services:
     depends_on:
       - backtp1
 
+  frontend:
+    build: ./develops-front-main
+    container_name: frontend
+    networks:
+      - my-network
+    depends_on:
+      - backtp1
+
 networks:
     my-network:
