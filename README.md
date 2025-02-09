@@ -63,8 +63,19 @@ Docker Compose est un outil essentiel pour orchestrer des applications multi-con
 - Interopérabilité :
     Intégration facile avec des outils CI/CD pour automatiser les pipelines de déploiement.
 
-  ### 1-7 :
-  Version commenté du docker compose
+### 1-7 :
+Liste des commandes Docker importantes :
+```bash
+docker-compose up -d #  démarre les services définis dans le fichier docker-compose.yml avec l'option -d pour laisser le terminal disponible
+docker-compose down # arrête et supprime les conteneurs
+docker-compose build # construction des images
+docker-compose logs # affiche les logs du conteneur cité après
+docker-compose ps # affiche la liste des conteneurs existant avec leurs id / état / ports / noms
+docker-compose stop # stop le conteneur cité
+```
+
+### 1-8 :
+Version commenté du docker compose
   
 ```bash
 services:
@@ -110,6 +121,23 @@ services:
 networks:
     my-network:  # Définition d'un réseau unique pour permettre la communication entre les services
 ```
+### 1-9
+
+Commandes Docker hub
+```bash
+docker login # première étape de connexion
+docker tag mydb USERNAME/mydb:latest # tag l'image mydb avec l'username docker hub pour l'authentification + une version (ici latest)
+docker push USERNAME/mydb:latest # push l'image sur docker hub
+```
+### 1-10 :
+
+L'intérêt de publier nos images sur des repo en ligne est varié :
+
+Accessibilité et partage : Un dépôt en ligne comme Docker Hub permet de partager facilement des images Docker sans avoir à les envoyer manuellement.
+Déploiement simplifié : Les images peuvent être téléchargées depuis n'importe quel serveur ou machine, ce qui facilite les déploiements dans différents environnements (production, test, développement).
+Sauvegarde et versioning : Docker Hub conserve différentes versions des images, ce qui permet de revenir à une version antérieure si nécessaire.
+Automatisation et CI/CD : Les pipelines d'intégration et de déploiement continus (CI/CD) peuvent automatiquement récupérer des images à partir d’un dépôt en ligne pour construire et déployer des applications.
+Mise à jour facile : Lorsqu’une nouvelle version d'une image est publiée, les autres services ou machines peuvent récupérer automatiquement cette mise à jour.
 
 # TP2
 
