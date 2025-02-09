@@ -269,7 +269,7 @@ jobs:
           push: true
           # Push: Automatically push the frontend image to DockerHub.
 ```
-#TP3
+# TP3
 
 ### Version commenté inventory
 
