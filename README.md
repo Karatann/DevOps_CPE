@@ -115,17 +115,16 @@ networks:
 
 ### 2-1 :
 Testcontainers est une bibliothèque Java qui facilite l'utilisation de conteneurs Docker pour les tests, les avantages sont :
-- Tests d'intégration réalistes : Permet de tester des interactions avec des bases de données, des files d'attente, ou d'autres services externes dans un environnement Docker.
+- Tests d'intégration réalistes : Permet de tester des interactions avec des bases de données ou d'autres services externes dans un environnement Docker.
 - Évite les dépendances locales : Pas besoin d'installer PostgreSQL ou d'autres services localement.
 - Facilité d'utilisation : Configure et démarre automatiquement les conteneurs nécessaires pendant les tests.
 
 ### 2-3 For what purpose do we need to push docker images?
 
 Avantages de pousser les images Docker sur Docker Hub :
-- Accessibilité globale : Les images sont disponibles pour toute l'équipe et les environnements (production, staging, etc.).
+- Accessibilité globale : Les images sont disponibles pour toute l'équipe.
 - Standardisation : Partage d'environnements cohérents grâce à des conteneurs Docker reproductibles.
-- Automatisation des déploiements : Les plateformes de déploiement (comme Kubernetes, AWS ECS) peuvent récupérer automatiquement les images Docker à partir de Docker Hub.
-- Versionnement : Les images Docker peuvent être taguées (latest, v1.0, etc.) pour une gestion simplifiée des versions.
+- Versionnement : Les images Docker peuvent être taguées (latest, v1.0, etc...) pour une gestion simplifiée des versions.
 
   ## comment version test backend :
 ```bash
@@ -270,5 +269,149 @@ jobs:
           push: true
           # Push: Automatically push the frontend image to DockerHub.
 ```
+#TP3
 
+### Version commenté inventory
 
+```bash
+# Définition du groupe global "all", qui s'applique à tous les hôtes
+all:
+  vars:
+    ansible_user: admin  # Définit l'utilisateur SSH par défaut
+    ansible_ssh_private_key_file: ~/id_rsa  # Spécifie la clé privée SSH à utiliser pour se connecter
+  children:
+    prod:  # Groupe d'hôtes de production
+      hosts:
+        delattre.thib.takima.cloud  # Hôte distant sur lequel Ansible va exécuter ses tâches
+```
+### Version commenté premier playbook
+```bash
+- hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+    # Install prerequisites for Docker
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-venv
+        state: latest
+        update_cache: yes
+
+    # Add Docker’s official GPG key
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    # Set up the Docker stable repository
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+        state: present
+        update_cache: yes
+
+    # Install Docker
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    # Install Python3 and pip3
+    - name: Install Python3 and pip3
+      apt:
+        name:
+          - python3
+          - python3-pip
+        state: present
+
+    # Create a virtual environment for Python packages
+    - name: Create a virtual environment for Docker SDK
+      command: python3 -m venv /opt/docker_venv
+      args:
+        creates: /opt/docker_venv # Only runs if this directory doesn’t exist
+
+    # Install Docker SDK for Python in the virtual environment
+    - name: Install Docker SDK for Python in virtual environment
+      command: /opt/docker_venv/bin/pip install docker
+
+    # Ensure Docker is running
+    - name: Make sure Docker is running
+      service:
+        name: docker
+        state: started
+      tags: docker*
+```
+### Version commenté docker playbook + task
+```bash
+- hosts: all
+  gather_facts: true
+  become: true
+
+  roles:
+    - docker
+```
+```bash
+---
+# tasks/main.yml
+
+# 1. Installer les prérequis pour Docker
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - python3-venv
+    state: latest
+    update_cache: yes
+
+# 2. Ajouter la clé GPG officielle de Docker
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+# 3. Ajouter le dépôt APT stable de Docker
+- name: Add Docker APT repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+    state: present
+    update_cache: yes
+
+# 4. Installer Docker
+- name: Install Docker
+  apt:
+    name: docker-ce
+    state: present
+
+# 5. Installer Python3 et pip3
+- name: Install Python3 and pip3
+  apt:
+    name:
+      - python3
+      - python3-pip
+    state: present
+
+- name: Create a virtual environment for Docker SDK
+  command: python3 -m venv /opt/docker_venv
+  args:
+    creates: /opt/docker_venv # Ne s'exécute que si le répertoire n'existe pas
+
+- name: Install Docker SDK for Python in virtual environment
+  command: /opt/docker_venv/bin/pip install docker
+
+- name: Make sure Docker is running
+  service:
+    name: docker
+    state: started
+  tags: docker
+```
