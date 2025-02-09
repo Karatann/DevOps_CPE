@@ -63,6 +63,54 @@ Docker Compose est un outil essentiel pour orchestrer des applications multi-con
 - Interopérabilité :
     Intégration facile avec des outils CI/CD pour automatiser les pipelines de déploiement.
 
+  ### 1-7 :
+  Version commenté du docker compose
+
+  ```bash
+services:
+  backtp1:
+    build: "backend/simple-api-student"  # Construction du conteneur à partir du dossier backend/simple-api-student
+    environment:   # Utilisation d'une variable d'environnement
+      - URL=${URL}
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}  
+    networks:
+      - my-network  # Connexion au réseau défini ci-dessous
+    depends_on:
+      - tp1db  # Démarre après la base de données tp1db pour éviter des erreurs de connexion
+
+  tp1db:
+    build: "db"  # Construction du conteneur de la base de données à partir du dossier "db"
+    environment:  # Utilisation d'une variable d'environnement
+      - POSTGRES_DB=${POSTGRES_DB} 
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}  
+    networks:
+      - my-network  # Connexion au réseau pour la communication avec les autres services
+    volumes:
+      - /pgdata:/var/lib/postgresql/data  # Persistance des données de la base de données 
+
+  httptp1:
+    build: "http"  # Construction du conteneur HTTP depuis le dossier "http"
+    ports:
+      - "80:80"  # Redirection du port 80 de l’hôte vers le conteneur*
+    networks:
+      - my-network  # Connexion au réseau pour accéder au backend
+    depends_on:
+      - backtp1  # Démarre après le backend pour s'assurer qu'il est disponible
+
+  frontend:
+    build: ./develops-front-main  # Construction du conteneur du front-end à partir du dossier "develops-front-main"
+    container_name: frontend  # Nom explicite du conteneur
+    networks:
+      - my-network  # Connexion au même réseau pour la communication avec le backend
+    depends_on:
+      - backtp1  # Démarre après le backend pour éviter des erreurs de chargement de l'interface utilisateur
+
+networks:
+    my-network:  # Définition d'un réseau unique pour permettre la communication entre les services
+  ```
+
 # TP2
 
 ### 2-1 :
