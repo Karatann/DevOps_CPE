@@ -65,8 +65,8 @@ Docker Compose est un outil essentiel pour orchestrer des applications multi-con
 
   ### 1-7 :
   Version commenté du docker compose
-
-  ```bash
+  
+```bash
 services:
   backtp1:
     build: "backend/simple-api-student"  # Construction du conteneur à partir du dossier backend/simple-api-student
@@ -109,7 +109,7 @@ services:
 
 networks:
     my-network:  # Définition d'un réseau unique pour permettre la communication entre les services
-  ```
+```
 
 # TP2
 
