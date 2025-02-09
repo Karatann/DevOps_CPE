@@ -44,10 +44,10 @@ On utilise multistage build car à l'aide de ce procédé l'image n'est génér�
 
 ### 1-5 :
 Un reverse proxy est essentiel pour les raisons suivantes :
-Abstraction des services backend : Cache l'URL réelle et le port du backend, ce qui rend la communication plus sécurisée et flexible
+Abstraction des services backend -> cache l'URL réelle et le port du backend ce qui rend la communication plus sécurisée et flexible
 
 ### 1-6 :
-Docker Compose est un outil essentiel pour orchestrer des applications multi-conteneurs. Voici pourquoi :
+Docker Compose est un outil essentiel pour orchestrer des applications multi-conteneurs car :
 
 - Simplification des déploiements :
     Permet de définir et de gérer plusieurs conteneurs dans un seul fichier docker-compose.yml.
@@ -59,9 +59,6 @@ Docker Compose est un outil essentiel pour orchestrer des applications multi-con
 
 - Portabilité :
     Partagez le fichier docker-compose.yml pour garantir un environnement identique sur différentes machines ou équipes.
-
-- Scalabilité :
-    Facilite la montée en charge avec une simple commande (docker-compose up --scale).
 
 - Interopérabilité :
     Intégration facile avec des outils CI/CD pour automatiser les pipelines de déploiement.
