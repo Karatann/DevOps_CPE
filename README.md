@@ -133,11 +133,11 @@ docker push USERNAME/mydb:latest # push l'image sur docker hub
 
 L'intérêt de publier nos images sur des repo en ligne est varié :
 
-Accessibilité et partage : Un dépôt en ligne comme Docker Hub permet de partager facilement des images Docker sans avoir à les envoyer manuellement.
-Déploiement simplifié : Les images peuvent être téléchargées depuis n'importe quel serveur ou machine, ce qui facilite les déploiements dans différents environnements (production, test, développement).
-Sauvegarde et versioning : Docker Hub conserve différentes versions des images, ce qui permet de revenir à une version antérieure si nécessaire.
-Automatisation et CI/CD : Les pipelines d'intégration et de déploiement continus (CI/CD) peuvent automatiquement récupérer des images à partir d’un dépôt en ligne pour construire et déployer des applications.
-Mise à jour facile : Lorsqu’une nouvelle version d'une image est publiée, les autres services ou machines peuvent récupérer automatiquement cette mise à jour.
+- Accessibilité et partage : Un dépôt en ligne comme Docker Hub permet de partager facilement des images Docker sans avoir à les envoyer manuellement.
+- Déploiement simplifié : Les images peuvent être téléchargées depuis n'importe quel serveur ou machine, ce qui facilite les déploiements dans différents environnements (production, test, développement).
+- Sauvegarde et versioning : Docker Hub conserve différentes versions des images, ce qui permet de revenir à une version antérieure si nécessaire.
+- Automatisation et CI/CD : Les pipelines d'intégration et de déploiement continus (CI/CD) peuvent automatiquement récupérer des images à partir d’un dépôt en ligne pour construire et déployer des applications.
+- Mise à jour facile : Lorsqu’une nouvelle version d'une image est publiée, les autres services ou machines peuvent récupérer automatiquement cette mise à jour.
 
 # TP2
 
